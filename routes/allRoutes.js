@@ -1,0 +1,90 @@
+const express = require("express");
+const router = express.Router();
+const userController = require("../controllers/userController");
+const AuthUser = require("../models/authUser");
+const bcrypt = require("bcrypt");
+var jwt = require("jsonwebtoken");
+var requireAuth = require("../middleware/middleware");
+
+const checkIfUser = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (token) {
+    jwt.verify(token, "shhhhh", async (error, decoded) => {
+      if (error) {
+        res.locals.user = null;
+        next();
+      } else {
+        const currentUser = await AuthUser.findById(decoded.id);
+        res.locals.user = currentUser;
+        next();
+      }
+    });
+  } else {
+    res.locals.user = null;
+    next();
+  }
+};
+
+// router.get('*', checkIfUser);
+
+// Level 2
+router.get("/", checkIfUser, (req, res) => {
+  res.render("welcome");
+});
+
+router.get("/login", checkIfUser, (req, res) => {
+  res.render("../views/auth/login.ejs");
+});
+
+router.get("/signup", checkIfUser, (req, res) => {
+  res.render("../views/auth/signup.ejs");
+});
+
+router.post("/signup", async (req, res) => {
+  try {
+    const result = await AuthUser.create(req.body);
+    // console.log(result)
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  // console.log(req.body);
+  // console.log("-----------------------------------");
+  const loginUser = await AuthUser.findOne({ email: req.body.email });
+  // console.log(loginUser);
+  if (loginUser == null) {
+    // console.log("this email not found in db")
+  } else {
+    const match = await bcrypt.compare(req.body.password, loginUser.password);
+    if (match) {
+      console.log("correct email & password");
+      var token = jwt.sign({ id: loginUser._id }, "shhhhh");
+      console.log(token);
+      res.cookie("jwt", token, { httpOnly: true, maxAge: 86400000 });
+      res.redirect("/home");
+    } else {
+      console.log("wrong password");
+    }
+  }
+});
+
+// Level 1
+// Get Request (Get Data From DB)
+router.get("/home", requireAuth, userController.user_index_get);
+
+router.get("/view/:id", requireAuth, userController.user_view_get);
+
+router.get("/edit/:id", requireAuth, userController.user_edit_get);
+
+// Post Request (Send Data To DB)
+router.post("/search", userController.user_search_post);
+
+// Delete Request (Delelte Data From DB)
+router.delete("/edit/:id", requireAuth, userController.user_delete);
+
+// Update Request (Update Data In  DB)
+router.put("/edit/:id", userController.user_put);
+
+module.exports = router;

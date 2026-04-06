@@ -1,0 +1,19 @@
+<header class="masthead mb-auto">
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>
+            <a class="btn fs-2 text-white fw-bold" href="/">Nedall</a>
+        </h3>
+        <% if (user) { %>
+            <div class="d-flex align-items-center">
+                <p class="m-0 me-2">Welcome : <%= user.email %></p>
+                <a class="fw-bold btn btn-light" href="/sign out">sign out</a>
+            </div>
+        <% } else { %>
+            <nav class="nav nav-masthead justify-content-center">
+                <a class="btn fw-bold <%= currentPage == "login" ? "btn-light" : null  %>" href="/login">log in</a>
+                <a class="btn fw-bold <%= currentPage == "signup" ? "btn-light" : null  %>" href="/signup">sign up</a>
+            </nav>
+        <% } %>
+        
+    </div>
+</header>
