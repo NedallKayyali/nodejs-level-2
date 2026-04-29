@@ -1,0 +1,25 @@
+{
+    username: nedall,
+    email: nedallwael@gmail.com,
+    password: nN@123456789!,
+    customerInfo: [{
+        firstName: String,
+        lastName: String,
+        email: String,
+        phoneNumber: String,
+        age: String,
+        country: String,
+        gender: String,
+    },
+
+    {
+        firstName: String,
+        lastName: String,
+        email: String,
+        phoneNumber: String,
+        age: String,
+        country: String,
+        gender: String,
+    },
+    ]
+}
